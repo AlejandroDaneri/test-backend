@@ -1,0 +1,37 @@
+version: "3"
+services:
+  api:
+    container_name: api
+    image: node:14-alpine3.12
+    command: sh -c "npm install && npm start"
+    working_dir: /app
+    ports:
+      - "1337:1337"
+    env_file:
+      - ./.env
+    volumes:
+      - .:/app
+
+  mysql:
+    container_name: mysql
+    image: mysql:8
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - "./database/mysql_data:/var/lib/mysql"
+    environment:
+      MYSQL_DATABASE: "abhikumar"
+      MYSQL_PASSWORD: "password"
+      MYSQL_ROOT_PASSWORD: "password"
+    ports:
+      - "3306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - 8080:80
+    depends_on:
+      - mysql
+    environment:
+      - PMA_HOSTS=mysql
+    logging:
+      driver: none
